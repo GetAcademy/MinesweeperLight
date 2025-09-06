@@ -8,9 +8,9 @@ function updateView() {
     const cellChar = board.charAt(cellIndex);
 
     if (isClosed(cellChar)) {
-      html += `<div class="cell closed" onclick="openCell(${rowIndex},${colIndex})"></div>`;
+      html += /*HTML*/`<div class="cell closed" onclick="openCell(${cellIndex})"></div>`;
     } else {
-      html += `
+      html += /*HTML*/`
         <div class="cell open
           ${cellChar === 'B' ? ' bomb' : ''}
           ${cellChar >= '1' && cellChar <= '8' ? getNumberClass(cellChar) : ''}">
