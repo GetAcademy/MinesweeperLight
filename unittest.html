@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="no">
+
+<head>
+    <meta charset="utf-8" />
+    <title>QUnit – Minesweeper tests</title>
+    <link rel="stylesheet" href="https://unpkg.com/qunit@2.20.0/qunit/qunit.css">
+</head>
+
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+
+    <!-- Last inn koden din før testene (endre sti/filnavn ved behov) -->
+    <script src="controller.js"></script>
+
+    <script src="https://unpkg.com/qunit@2.20.0/qunit/qunit.js"></script>
+    <script>
+        // test model
+        const ROWS = 3;
+        const COLS = 3;
+        // b = lukket bombe, □ = lukket blank
+        // b på [0,0] og [1,1]
+        let board = 'b□□' + '□b□' + '□□□';
+
+        // dummy view
+        function updateView() { }
+
+        QUnit.module('countNeighborBombs(index)', function () {
+            QUnit.test('Hjørne øverst-venstre', function (assert) {
+                assert.equal(countNeighborBombs(0), 1, 'Index 0 har 1 nabo-bombe');
+            });
+            QUnit.test('Kanter og midten', function (assert) {
+                assert.equal(countNeighborBombs(1), 2, 'Index 1 har 2 nabo-bomber');
+                assert.equal(countNeighborBombs(2), 1, 'Index 2 har 1 nabo-bombe');
+                assert.equal(countNeighborBombs(3), 2, 'Index 3 har 2 nabo-bomber');
+                assert.equal(countNeighborBombs(4), 1, 'Index 4 (midten) har 1 nabo-bombe');
+            });
+            QUnit.test('Hjørne nederst-høyre', function (assert) {
+                assert.equal(countNeighborBombs(8), 1, 'Index 8 har 1 nabo-bombe');
+            });
+        });
+    </script>
+</body>
+
+</html>
