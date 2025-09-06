@@ -1,5 +1,5 @@
 function updateView(){
-  var html = '<div id="game" style="--cols:'+COLS+'"><div class="board">';
+  var html = '<div class="board" style="--cols:'+COLS+'">';
   var r, c, i, ch;
   for(r=0;r<ROWS;r++){
     for(c=0;c<COLS;c++){
@@ -17,7 +17,7 @@ function updateView(){
       }
     }
   }
-  html += '</div></div>';
+  html += '</div>';
   document.getElementById('app').innerHTML = html;
 }
 
