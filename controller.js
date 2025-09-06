@@ -1,32 +1,38 @@
 // ======= CONTROLLER (index-basert) =======
 
-// 8 nabo-retninger som rene indeks-offsets
+// 8 nabo-retninger som rene indeks-offsets (avhenger av global COLS)
 const neighborOffsets = [
   -COLS - 1, -COLS, -COLS + 1,
   -1,                 +1,
   +COLS - 1, +COLS,  +COLS + 1
 ];
 
-// offentlig entry: åpner én celle og oppdaterer view
+// Offentlig entry: åpner én celle og oppdaterer view
 function openCell(cellIndex) {
-  if (!inBoundsIndex(cellIndex)) return;
   openCellInternal(cellIndex);
   updateView();
 }
 
-// rekursiv flood-fill når vi åpner blanke ruter
+// Rekursiv flood-fill når vi åpner blanke ruter
 function openCellInternal(cellIndex) {
-  const cellChar = board.charAt(cellIndex);
-  if (!isClosed(cellChar)) return;
+  if (!inBoundsIndex(cellIndex)) return;
+
+  const ch = board.charAt(cellIndex);
+  if (!isClosed(ch)) return;
 
   const openedChar =
-    cellChar === 'b' ? 'B' :      // bombe
-    cellChar === '□' ? '·' :      // blank
-    toOpenDigit(cellChar);        // ₁..₈ -> '1'..'8'
+    ch === 'b' ? 'B' :     // bombe
+    ch === '□' ? '·' :     // blank
+    toOpenDigit(ch);       // ₁..₈ -> '1'..'8'
 
+  // ekstra sikkerhet: vi vil ALDRI endre lengden på board
+  if (openedChar.length !== 1) {
+    console.error('openedChar må være ett tegn, fikk:', openedChar);
+    return;
+  }
   setCharAt(cellIndex, openedChar);
 
-  // bare flood-fill fra blanke åpne ruter
+  // Bare flood-fill videre fra blanke åpne ruter
   if (openedChar !== '·') return;
 
   for (let i = 0; i < neighborOffsets.length; i++) {
@@ -36,7 +42,7 @@ function openCellInternal(cellIndex) {
     const neighborIndex = cellIndex + offset;
     const neighborChar  = board.charAt(neighborIndex);
 
-    // ikke åpne bomber; hopp over allerede åpne
+    // Ikke åpne bomber; hopp over allerede åpne
     if (neighborChar === 'b' || !isClosed(neighborChar)) continue;
 
     openCellInternal(neighborIndex);
@@ -49,31 +55,41 @@ function inBoundsIndex(index) {
   return index >= 0 && index < ROWS * COLS;
 }
 
-// sørger for at -1/+1 ikke “wrap’er” mellom rader
+// Hindrer at venstre/høyre-naboer wrap’er over til nabokolonne
 function isValidNeighborIndex(originIndex, offset) {
   const originCol = originIndex % COLS;
 
-  // venstrekant: kan ikke gå til venstre
+  // venstrekant
   if (originCol === 0 && (offset === -1 || offset === -COLS - 1 || offset === +COLS - 1)) return false;
 
-  // høyrekant: kan ikke gå til høyre
+  // høyrekant
   if (originCol === COLS - 1 && (offset === +1 || offset === -COLS + 1 || offset === +COLS + 1)) return false;
 
   const neighborIndex = originIndex + offset;
   return inBoundsIndex(neighborIndex);
 }
 
-function isClosed(cellChar) {
-  if (cellChar === 'b' || cellChar === '□') return true;
-  const code = cellChar.charCodeAt(0);
-  return code >= 0x2081 && code <= 0x2088; // subskript ₁..₈
+// Lukkede: bombe ('b'), blank ('□'), eller subskript-tall ₁..₈
+function isClosed(ch) {
+  return ch === 'b' || ch === '□' || '₁₂₃₄₅₆₇₈'.indexOf(ch) !== -1;
 }
 
-function toOpenDigit(cellChar) {
-  const code = cellChar.charCodeAt(0);
-  return (code >= 0x2081 && code <= 0x2088) ? String(code - 0x2080) : cellChar;
+// ₁..₈ -> '1'..'8'; ellers returner originalt tegn
+function toOpenDigit(ch) {
+  const sub = '₁₂₃₄₅₆₇₈';
+  const idx = sub.indexOf(ch);
+  return idx !== -1 ? String(idx + 1) : ch;
 }
 
+// Bytt nøyaktig ett tegn i board uten å endre lengden
 function setCharAt(index, newChar) {
-  board = `${board.substr(0, index)}${newChar}${board.substr(index + 1)}`;
+  if (typeof newChar !== 'string' || newChar.length !== 1) {
+    console.error('setCharAt: newChar må være ett tegn, fikk:', newChar);
+    return;
+  }
+  const beforeLen = board.length;
+  board = `${board.slice(0, index)}${newChar}${board.slice(index + 1)}`;
+  if (board.length !== beforeLen) {
+    console.error('ADVARSEL: board-lengde endret!', { beforeLen, afterLen: board.length });
+  }
 }

@@ -3,8 +3,6 @@ function updateView() {
   let html = `<div class="board" style="--cols:${COLS}">`;
 
   for (let cellIndex = 0; cellIndex < totalCells; cellIndex++) {
-    const rowIndex = Math.floor(cellIndex / COLS);
-    const colIndex = cellIndex % COLS;
     const cellChar = board.charAt(cellIndex);
 
     if (isClosed(cellChar)) {
