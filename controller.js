@@ -25,28 +25,24 @@ function openCellInternal(cellIndex) {
     ch === '□' ? '·' :     // blank
     toOpenDigit(ch);       // ₁..₈ -> '1'..'8'
 
-  // ekstra sikkerhet: vi vil ALDRI endre lengden på board
-  if (openedChar.length !== 1) {
-    console.error('openedChar må være ett tegn, fikk:', openedChar);
-    return;
-  }
   setCharAt(cellIndex, openedChar);
 
-  // Bare flood-fill videre fra blanke åpne ruter
-  if (openedChar !== '·') return;
+  if (openedChar === '·') openNeighbors(cellIndex);
+}
 
-  for (let i = 0; i < neighborOffsets.length; i++) {
-    const offset = neighborOffsets[i];
-    if (!isValidNeighborIndex(cellIndex, offset)) continue;
+function openNeighbors(cellIndex) {
+    for (let i = 0; i < neighborOffsets.length; i++) {
+        const offset = neighborOffsets[i];
+        if (!isValidNeighborIndex(cellIndex, offset)) continue;
 
-    const neighborIndex = cellIndex + offset;
-    const neighborChar  = board.charAt(neighborIndex);
+        const neighborIndex = cellIndex + offset;
+        const neighborChar = board.charAt(neighborIndex);
 
-    // Ikke åpne bomber; hopp over allerede åpne
-    if (neighborChar === 'b' || !isClosed(neighborChar)) continue;
+        // Ikke åpne bomber; hopp over allerede åpne
+        if (neighborChar === 'b' || !isClosed(neighborChar)) continue;
 
-    openCellInternal(neighborIndex);
-  }
+        openCellInternal(neighborIndex);
+    }
 }
 
 // ======= HJELPERE =======
